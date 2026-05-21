@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Radhe AI</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0d0d14;--panel:#13131f;--border:#1e1e30;
+  --a:#7c6af7;--a2:#a78bfa;
+  --text:#e2e2f0;--muted:#555570;
+  --bot:#16162a;--usr:#1e1430;
+  --r:14px;
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;height:100dvh;display:flex;flex-direction:column;overflow:hidden;font-size:15px}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -5%,rgba(124,106,247,.06),transparent);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* HEADER */
+header{display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:54px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;position:relative;z-index:10}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:1.05rem}
+.logo-icon{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;justify-content:center;font-size:.9rem}
+.online{display:flex;align-items:center;gap:5px;font-size:.7rem;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:3px 10px}
+.online-dot{width:6px;height:6px;border-radius:50%;background:#4ade80;animation:blink 2.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hbtns{display:flex;gap:6px}
+.hbtn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;width:34px;height:34px;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.hbtn:hover{color:var(--a2);border-color:var(--a);background:rgba(124,106,247,.07)}
+
+/* SETUP NOTICE */
+#notice{background:rgba(124,106,247,.06);border-bottom:1px solid rgba(124,106,247,.18);padding:9px 16px;font-size:.77rem;color:var(--muted);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-shrink:0;flex-wrap:wrap;line-height:1.5;position:relative;z-index:9}
+#notice b{color:var(--a2)}
+#notice a{color:var(--a2)}
+.msel{background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:4px 9px;font-family:'Inter',sans-serif;font-size:.74rem;outline:none;cursor:pointer}
+.msel option{background:var(--panel)}
+.nx{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.95rem;padding:0 3px}
+
+/* CHAT */
+#chat{flex:1;overflow-y:auto;padding:18px 14px 10px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth;position:relative;z-index:1}
+
+/* WELCOME */
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:14px;text-align:center;padding:24px 18px;animation:fu .45s ease both}
+.wicon{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--a2));display:flex;align-items:center;justify-content:center;font-size:1.7rem;box-shadow:0 0 28px rgba(124,106,247,.3);animation:fl 3s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.welcome h2{font-size:1.45rem;font-weight:700}
+.welcome h2 span{background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.welcome p{color:var(--muted);font-size:.87rem;max-width:340px;line-height:1.65}
+.qgrid{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-top:4px}
+.qbtn{background:var(--panel);border:1px solid var(--border);color:var(--text);border-radius:18px;padding:7px 14px;font-family:'Inter',sans-serif;font-size:.77rem;cursor:pointer;transition:all .15s}
+.qbtn:hover{border-color:var(--a);color:var(--a2);background:rgba(124,106,247,.07)}
+
+/* MESSAGES */
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.msg{display:flex;gap:9px;animation:fu .24s ease both}
+.msg.user{flex-direction:row-reverse}
+.av{width:31px;height:31px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;border:1px solid var(--border)}
+.msg.bot .av{background:rgba(124,106,247,.12);border-color:rgba(124,106,247,.28)}
+.msg.user .av{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.22)}
+.mbody{max-width:80%;display:flex;flex-direction:column;gap:4px}
+.msg.user .mbody{align-items:flex-end}
+.mname{font-size:.63rem;color:var(--muted);font-weight:600;letter-spacing:.4px;padding:0 2px}
+.bubble{padding:11px 14px;border-radius:var(--r);line-height:1.7;font-size:.89rem;border:1px solid var(--border);word-break:break-word}
+.msg.bot .bubble{background:var(--bot);border-color:rgba(124,106,247,.13);border-top-left-radius:4px}
+.msg.user .bubble{background:var(--usr);border-color:rgba(167,139,250,.13);border-top-right-radius:4px;color:#ded6ff}
+.bubble strong{color:var(--a2);font-weight:600}
+.bubble em{color:#c4b5fd}
+.bubble h2,.bubble h3{color:var(--a2);margin:8px 0 4px;font-size:.97rem}
+.bubble pre{background:#09090f;border:1px solid var(--border);border-radius:8px;padding:11px;overflow-x:auto;margin:7px 0;font-size:.77rem;line-height:1.5;font-family:monospace}
+.bubble code:not(pre code){background:rgba(124,106,247,.13);border:1px solid rgba(124,106,247,.22);border-radius:4px;padding:1px 5px;font-size:.82em;font-family:monospace;color:var(--a2)}
+.bubble hr{border:none;border-top:1px solid var(--border);margin:9px 0}
+.acts{display:flex;gap:5px;flex-wrap:wrap;margin-top:2px}
+.act{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:2px 9px;font-size:.66rem;cursor:pointer;font-family:'Inter',sans-serif;transition:all .14s}
+.act:hover{color:var(--a2);border-color:var(--a)}
+
+/* TYPING */
+.typing{display:flex;gap:9px;animation:fu .24s ease both}
+.tdots{background:var(--bot);border:1px solid rgba(124,106,247,.13);border-radius:var(--r);border-top-left-radius:4px;padding:13px 17px;display:flex;gap:5px;align-items:center}
+.td{width:7px;height:7px;border-radius:50%;animation:tp 1.2s infinite}
+.td:nth-child(1){background:var(--a);animation-delay:0s}
+.td:nth-child(2){background:var(--a2);animation-delay:.18s}
+.td:nth-child(3){background:#c4b5fd;animation-delay:.36s}
+@keyframes tp{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+
+/* INPUT */
+.ibar{background:var(--panel);border-top:1px solid var(--border);padding:11px 14px;flex-shrink:0;position:relative;z-index:9}
+.modes{display:flex;gap:5px;overflow-x:auto;margin-bottom:8px;padding-bottom:1px}
+.modes::-webkit-scrollbar{height:0}
+.mchip{padding:3px 11px;border-radius:13px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:.69rem;font-weight:500;cursor:pointer;white-space:nowrap;transition:all .14s;flex-shrink:0}
+.mchip:hover{color:var(--text);border-color:var(--muted)}
+.mchip.on{border-color:var(--a);color:var(--a2);background:rgba(124,106,247,.09)}
+.irow{display:flex;gap:8px;align-items:flex-end}
+textarea#inp{flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:.89rem;border-radius:var(--r);padding:11px 13px;resize:none;line-height:1.5;min-height:45px;max-height:130px;outline:none;transition:border-color .18s}
+textarea#inp:focus{border-color:rgba(124,106,247,.45)}
+textarea#inp::placeholder{color:var(--muted)}
+#snd{width:45px;height:45px;border-radius:var(--r);background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .18s;box-shadow:0 4px 14px rgba(124,106,247,.3)}
+#snd:hover:not(:disabled){transform:scale(1.06);box-shadow:0 6px 18px rgba(124,106,247,.45)}
+#snd:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.hint{text-align:center;font-size:.63rem;color:var(--muted);margin-top:7px;opacity:.55}
+
+/* SIDEBAR */
+.sbover{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:199;display:none}
+.sbover.on{display:block}
+.sb{position:fixed;top:0;left:0;bottom:0;width:255px;background:var(--panel);border-right:1px solid var(--border);z-index:200;display:flex;flex-direction:column;transform:translateX(-100%);transition:transform .22s ease}
+.sb.on{transform:translateX(0)}
+.sb-hdr{display:flex;align-items:center;justify-content:space-between;padding:0 15px;height:54px;border-bottom:1px solid var(--border);font-weight:700;font-size:.9rem;flex-shrink:0}
+.sblbl{padding:10px 13px 6px;font-size:.61rem;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;border-bottom:1px solid var(--border);flex-shrink:0}
+.plist{padding:7px;display:flex;flex-direction:column;gap:3px;flex-shrink:0}
+.per{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:9px;border:1px solid transparent;cursor:pointer;font-size:.82rem;font-weight:500;background:transparent;color:var(--text);font-family:'Inter',sans-serif;width:100%;text-align:left;transition:all .14s}
+.per:hover{background:rgba(255,255,255,.04);border-color:var(--border)}
+.per.on{background:rgba(124,106,247,.09);border-color:rgba(124,106,247,.3);color:var(--a2)}
+.memwrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.mlist{flex:1;overflow-y:auto;padding:7px;display:flex;flex-direction:column;gap:4px}
+.mitem{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:7px 9px;font-size:.72rem;color:var(--muted);display:flex;justify-content:space-between;align-items:flex-start;gap:5px;line-height:1.4}
+.mitem span{flex:1}
+.mitem button{background:none;border:none;color:#f87171;cursor:pointer;font-size:.78rem;flex-shrink:0;padding:0}
+.sb-foot{padding:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+.sbtn{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px;font-family:'Inter',sans-serif;font-size:.74rem;cursor:pointer;transition:all .15s;text-align:center}
+.sbtn:hover{color:var(--text);border-color:var(--muted)}
+.sbtn.red:hover{color:#f87171;border-color:#f87171}
+
+/* MODAL */
+.over{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:300;display:none;align-items:center;justify-content:center;padding:14px}
+.over.on{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:16px;width:min(455px,95vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden;animation:fu .24s ease}
+.mhdr{padding:14px 17px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.94rem;flex-shrink:0}
+.mbod{padding:17px;overflow-y:auto;display:flex;flex-direction:column;gap:13px}
+.field label{display:block;font-size:.67rem;font-weight:700;letter-spacing:.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font-family:'Inter',sans-serif;font-size:.83rem;outline:none;transition:border-color .17s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--a)}
+.field textarea{resize:vertical;min-height:78px;line-height:1.5}
+.field select option{background:var(--panel)}
+.rrow{display:flex;align-items:center;gap:10px}
+.rrow input[type=range]{flex:1;accent-color:var(--a)}
+.rval{font-size:.77rem;color:var(--a2);font-family:monospace;min-width:30px;text-align:right}
+.mftr{padding:11px 17px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;flex-shrink:0}
+.btnp{background:linear-gradient(135deg,var(--a),var(--a2));color:#fff;border:none;border-radius:8px;padding:8px 20px;font-family:'Inter',sans-serif;font-weight:600;font-size:.83rem;cursor:pointer;transition:opacity .15s}
+.btnp:hover{opacity:.88}
+.btns{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:8px 17px;font-family:'Inter',sans-serif;font-size:.83rem;cursor:pointer;transition:all .15s}
+.btns:hover{color:var(--text);border-color:var(--muted)}
+
+/* LIGHT MODE */
+body.light{--bg:#f4f4fb;--panel:#fff;--border:#e0e0ef;--text:#1a1a2e;--muted:#8888aa;--bot:#ebebf8;--usr:#ede0ff}
+body.light .bubble pre{background:#f0f0f8}
+
+@media(max-width:480px){.mbody{max-width:88%}.welcome h2{font-size:1.25rem}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR OVERLAY -->
+<div class="sbover" id="sbo" onclick="sbClose()"></div>
+
+<!-- SIDEBAR -->
+<div class="sb" id="sb">
+  <div class="sb-hdr">
+    <span>🧠 Radhe AI</span>
+    <button class="hbtn" onclick="sbClose()">✕</button>
+  </div>
+  <div class="sblbl">Persona</div>
+  <div class="plist" id="plist"></div>
+  <div class="memwrap">
+    <div class="sblbl">Memory</div>
+    <div class="mlist" id="mlist">
+      <div style="color:var(--muted);font-size:.71rem;padding:3px">No memories yet.</div>
+    </div>
+  </div>
+  <div class="sb-foot">
+    <button class="sbtn" onclick="memAdd()">+ Add Memory</button>
+    <button class="sbtn red" onclick="chatClear()">🗑 Clear Chat</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div style="display:flex;align-items:center;gap:9px">
+    <button class="hbtn" onclick="sbOpen()">☰</button>
+    <div class="logo">
+      <div class="logo-icon">🧠</div>
+      Radhe <span style="color:var(--a2);margin-left:3px">AI</span>
+    </div>
+  </div>
+  <div class="online">
+    <div class="online-dot" id="sdot"></div>
+    <span id="stxt">Ready</span>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn" id="themebtn" onclick="toggleTheme()" title="Light/Dark">🌙</button>
+    <button class="hbtn" onclick="openCfg()" title="Settings">⚙️</button>
+    <button class="hbtn" onclick="doExport()" title="Export">📤</button>
+  </div>
+</header>
+
+<!-- SETUP NOTICE -->
+<div id="notice">
+  <span>⚡ <b>Offline Mode:</b> Install <a href="https://ollama.com/download" target="_blank">Ollama</a> → run <b style="color:var(--a2)">ollama pull llama3</b> in terminal → works 100% offline. &nbsp;Model:</span>
+  <div style="display:flex;align-items:center;gap:7px">
+    <select class="msel" id="mdl">
+      <option value="llama3">llama3 ✦ Best</option>
+      <option value="llama3.2">llama3.2</option>
+      <option value="mistral">mistral</option>
+      <option value="gemma2">gemma2</option>
+      <option value="phi3">phi3 — Fast</option>
+      <option value="deepseek-r1">deepseek-r1</option>
+      <option value="codellama">codellama</option>
+      <option value="qwen2">qwen2</option>
+    </select>
+    <button class="nx" onclick="document.getElementById('notice').style.display='none'">✕</button>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div id="chat"></div>
+
+<!-- INPUT BAR -->
+<div class="ibar">
+  <div class="modes" id="modes"></div>
+  <div class="irow">
+    <textarea id="inp" placeholder="Message Radhe AI…" rows="1"></textarea>
+    <button id="snd" onclick="doSend()">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+  <div class="hint">Enter to send · Shift+Enter for new line · 100% offline &amp; private</div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="over" id="cfg" onclick="if(event.target===this)closeCfg()">
+  <div class="modal">
+    <div class="mhdr">
+      <span>⚙️ Settings</span>
+      <button class="hbtn" onclick="closeCfg()">✕</button>
+    </div>
+    <div class="mbod">
+      <div class="field"><label>Bot Name</label><input type="text" id="cName" value="Radhe AI"/></div>
+      <div class="field"><label>Custom Personality (overrides persona)</label><textarea id="cSys" rows="4" placeholder="Leave blank to use selected persona…"></textarea></div>
+      <div class="field">
+        <label>Reply Language</label>
+        <select id="cLang">
+          <option value="">Auto</option>
+          <option value="Always reply in English.">🇬🇧 English</option>
+          <option value="हमेशा हिंदी में जवाब दो।">🇮🇳 Hindi</option>
+          <option value="Responde siempre en español.">🇪🇸 Spanish</option>
+          <option value="Réponds toujours en français.">🇫🇷 French</option>
+          <option value="أجب دائماً باللغة العربية.">🇸🇦 Arabic</option>
+          <option value="始终用中文回复。">🇨🇳 Chinese</option>
+          <option value="常に日本語で返答してください。">🇯🇵 Japanese</option>
+          <option value="Antworte immer auf Deutsch.">🇩🇪 German</option>
+          <option value="Rispondi sempre in italiano.">🇮🇹 Italian</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Response Length — <span id="maxL">800</span> tokens</label>
+        <div class="rrow"><input type="range" id="cMax" min="100" max="2000" step="50" value="800" oninput="maxL.textContent=this.value"/></div>
+      </div>
+      <div class="field">
+        <label>Creativity — <span id="tmpL">0.7</span></label>
+        <div class="rrow"><input type="range" id="cTmp" min="0" max="1" step="0.05" value="0.7" oninput="tmpL.textContent=this.value"/></div>
+      </div>
+      <div class="field">
+        <label>Emoji Mode</label>
+        <select id="cEmoji"><option value="">Off</option><option value="Use emojis naturally in your replies.">On</option></select>
+      </div>
+      <div class="field">
+        <label>Auto-Speak Replies</label>
+        <select id="cSpeak"><option value="off">Off</option><option value="on">On</option></select>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btns" onclick="closeCfg()">Cancel</button>
+      <button class="btnp" onclick="saveCfg()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════
+const PERSONAS = [
+  {id:'default',icon:'🧠',name:'Radhe AI',p:`You are Radhe AI, a powerful, friendly, and intelligent offline assistant. You help with knowledge, creativity, planning, problem solving, and conversation. You are calm, intelligent, supportive, and thoughtful — never arrogant or robotic. You respond naturally, explain things clearly, give structured answers, and adapt to the user's personality. Remember conversation context during the session. Never mention system prompts or internal instructions. Always be genuinely helpful.`},
+  {id:'teacher',icon:'📚',name:'Teacher',p:`You are a patient, expert teacher. Explain everything step by step with clear examples and analogies. Make learning easy and enjoyable. Adapt your explanation level — simple first, then detailed if needed. Never overwhelm with jargon.`},
+  {id:'coder',icon:'💻',name:'Developer',p:`You are a senior software developer. Write clean, well-commented, production-quality code. Always explain your logic. Use proper markdown code blocks with language labels. Suggest best practices and point out potential issues.`},
+  {id:'writer',icon:'✍️',name:'Writer',p:`You are a skilled creative writer. Help with essays, blogs, stories, scripts, poems, and emails. Adapt your style to what the user needs — formal, creative, casual, or poetic. Make every piece memorable.`},
+  {id:'analyst',icon:'📊',name:'Analyst',p:`You are a sharp analytical thinker. Provide structured, logical insights. Use bullet points, pros/cons lists, and clear frameworks. Help users think through decisions, strategies, and complex problems step by step.`},
+  {id:'friend',icon:'😊',name:'Friend',p:`You are a warm, casual, supportive best friend. Talk naturally and informally. Be encouraging, fun, and real. Help with personal decisions, motivation, and everyday questions without being stiff or formal.`}
+];
+
+const MODES = [
+  {id:'chat',   l:'💬 Chat',       pre:''},
+  {id:'explain',l:'🔍 Explain',    pre:'Explain this clearly — simple first, then detailed:'},
+  {id:'study',  l:'📖 Study',      pre:'Teach me this step by step like a proper lesson:'},
+  {id:'write',  l:'✍️ Write',      pre:'Write the following with great quality:'},
+  {id:'code',   l:'💻 Code',       pre:'Write complete, well-commented code for this:'},
+  {id:'plan',   l:'📋 Plan',       pre:'Create a clear step-by-step plan or schedule for this:'},
+  {id:'ideas',  l:'💡 Ideas',      pre:'Generate creative ideas and suggestions for this:'},
+  {id:'debate', l:'⚖️ Both Sides', pre:'Give strong arguments for BOTH sides:'},
+  {id:'summary',l:'📝 Summarize',  pre:'Give a clear, concise summary:'}
+];
+
+const QUICK = [
+  'What can you do? 🤖',
+  'Tell me something mind-blowing 🤯',
+  'Give me a productivity tip 💡',
+  'Write a short motivational poem 🎭',
+  'Help me solve a problem 🧩',
+  'Explain AI in simple words 🧠'
+];
+
+const G = {
+  msgs:[],mem:[],
+  per:'default',mode:'chat',
+  busy:false,
+  cfg:{name:'Radhe AI',sys:'',lang:'',max:800,tmp:0.7,emoji:'',speak:'off'}
+};
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function init(){
+  buildPersonas();
+  buildModes();
+  showWelcome();
+  const inp=document.getElementById('inp');
+  inp.addEventListener('input',resize);
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}});
+}
+
+function buildPersonas(){
+  const el=document.getElementById('plist');
+  el.innerHTML='';
+  PERSONAS.forEach(p=>{
+    const b=document.createElement('button');
+    b.className='per'+(G.per===p.id?' on':'');
+    b.id='p_'+p.id;
+    b.innerHTML=`<span style="font-size:1rem">${p.icon}</span>${p.name}`;
+    b.onclick=()=>{
+      G.per=p.id;
+      document.querySelectorAll('.per').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+      sbClose();
+    };
+    el.appendChild(b);
+  });
+}
+
+function buildModes(){
+  const el=document.getElementById('modes');
+  el.innerHTML='';
+  MODES.forEach(m=>{
+    const b=document.createElement('button');
+    b.className='mchip'+(G.mode===m.id?' on':'');
+    b.id='m_'+m.id;
+    b.textContent=m.l;
+    b.onclick=()=>{
+      G.mode=m.id;
+      document.querySelectorAll('.mchip').forEach(x=>x.classList.remove('on'));
+      b.classList.add('on');
+    };
+    el.appendChild(b);
+  });
+}
+
+// ══════════════════════════════════════════════
+// WELCOME
+// ══════════════════════════════════════════════
+function showWelcome(){
+  document.getElementById('chat').innerHTML=`
+  <div class="welcome">
+    <div class="wicon">🧠</div>
+    <h2>Hello. I am <span>Radhe AI</span></h2>
+    <p>Your offline assistant — free, private, and always available. No internet. No API keys. No limits.</p>
+    <div class="qgrid">${QUICK.map(q=>`<button class="qbtn" onclick="doSend(${JSON.stringify(q)})">${q}</button>`).join('')}</div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// SEND
+// ══════════════════════════════════════════════
+async function doSend(override){
+  const inp=document.getElementById('inp');
+  const text=(override||inp.value).trim();
+  if(!text||G.busy)return;
+
+  G.busy=true;
+  inp.value='';
+  inp.style.height='auto';
+  document.getElementById('snd').disabled=true;
+  setStatus('Thinking…');
+
+  if(G.msgs.length===0) document.getElementById('chat').innerHTML='';
+
+  G.msgs.push({role:'user',content:text});
+  addBubble('user',text,G.msgs.length-1);
+
+  // Build system
+  const persona=PERSONAS.find(p=>p.id===G.per)||PERSONAS[0];
+  const mode=MODES.find(m=>m.id===G.mode)||MODES[0];
+  let sys=G.cfg.sys.trim()||persona.p;
+  if(G.cfg.lang)  sys+='\n\n'+G.cfg.lang;
+  if(G.cfg.emoji) sys+='\n\n'+G.cfg.emoji;
+  if(G.mem.length) sys+='\n\n[REMEMBER ABOUT USER]:\n'+G.mem.map(m=>'• '+m).join('\n');
+  sys+='\n\nFormat responses with markdown (bold, headers, bullets, code blocks) where helpful.';
+
+  const finalText=mode.pre?mode.pre+'\n\n'+text:text;
+
+  const messages=[
+    {role:'system',content:sys},
+    ...G.msgs.slice(0,-1).map(m=>({role:m.role==='bot'?'assistant':m.role,content:m.content})),
+    {role:'user',content:finalText}
+  ];
+
+  showTyping();
+
+  try{
+    const model=document.getElementById('mdl').value;
+    const res=await fetch('http://localhost:11434/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model,messages,stream:false,
+        options:{temperature:G.cfg.tmp,num_predict:G.cfg.max}
+      })
+    });
+
+    if(!res.ok) throw new Error('Ollama returned error '+res.status);
+    const data=await res.json();
+    removeTyping();
+
+    const reply=data.message?.content||'(no response)';
+    G.msgs.push({role:'assistant',content:reply});
+    addBubble('bot',reply,G.msgs.length-1);
+
+    if(G.cfg.speak==='on') speak(reply);
+    setStatus('Ready');
+
+  }catch(err){
+    removeTyping();
+    const isNetwork=err.message.includes('fetch')||err.message.includes('Failed')||err.message.toLowerCase().includes('network');
+    const errText=isNetwork
+      ?`**Ollama is not running.**\n\nQuick fix:\n1. Download Ollama: https://ollama.com/download\n2. Install and open it\n3. In terminal run: \`ollama pull llama3\`\n4. Try again!\n\n*Completely free. Works 100% offline after setup.*`
+      :`**Error:** ${err.message}\n\nMake sure Ollama is running and your model is downloaded.`;
+    G.msgs.push({role:'assistant',content:errText});
+    addBubble('bot',errText,G.msgs.length-1);
+    setStatus('Error',true);
+  }
+
+  G.busy=false;
+  document.getElementById('snd').disabled=false;
+  document.getElementById('inp').focus();
+}
+
+// ══════════════════════════════════════════════
+// RENDER BUBBLE
+// ══════════════════════════════════════════════
+function addBubble(role,content,idx){
+  const chat=document.getElementById('chat');
+  const isBot=role==='bot'||role==='assistant';
+  const p=PERSONAS.find(x=>x.id===G.per)||PERSONAS[0];
+  const d=document.createElement('div');
+  d.className='msg '+(isBot?'bot':'user');
+  d.innerHTML=`
+    <div class="av">${isBot?p.icon:'👤'}</div>
+    <div class="mbody">
+      <div class="mname">${isBot?G.cfg.name:'You'}</div>
+      <div class="bubble">${md(content)}</div>
+      ${isBot?`<div class="acts">
+        <button class="act" onclick="doCopy(${idx})">📋 Copy</button>
+        <button class="act" onclick="doRetry(${idx})">🔄 Retry</button>
+        <button class="act" onclick="doSpeak(${idx})">🔊 Speak</button>
+        <button class="act" onclick="doSave(${idx})">💾 Remember</button>
+      </div>`:''}
+    </div>`;
+  chat.appendChild(d);
+  chat.scrollTop=chat.scrollHeight;
+}
+
+// ══════════════════════════════════════════════
+// TYPING
+// ══════════════════════════════════════════════
+function showTyping(){
+  const chat=document.getElementById('chat');
+  const p=PERSONAS.find(x=>x.id===G.per)||PERSONAS[0];
+  const d=document.createElement('div');
+  d.className='typing';d.id='typ';
+  d.innerHTML=`<div class="av" style="background:rgba(124,106,247,.12);border-color:rgba(124,106,247,.28)">${p.icon}</div><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  chat.appendChild(d);
+  chat.scrollTop=chat.scrollHeight;
+}
+function removeTyping(){const e=document.getElementById('typ');if(e)e.remove();}
+
+// ══════════════════════════════════════════════
+// MARKDOWN
+// ══════════════════════════════════════════════
+function md(t){
+  t=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // fenced code blocks
+  t=t.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre><code>${c.trim()}</code></pre>`);
+  // inline code
+  t=t.replace(/`([^`\n]+)`/g,'<code>$1</code>');
+  // bold
+  t=t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  // italic
+  t=t.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // headers
+  t=t.replace(/^### (.+)$/gm,'<h3>$1</h3>');
+  t=t.replace(/^## (.+)$/gm,'<h2>$1</h2>');
+  t=t.replace(/^# (.+)$/gm,'<h2>$1</h2>');
+  // unordered list
+  t=t.replace(/^[-*] (.+)$/gm,'<div style="display:flex;gap:7px;margin:2px 0"><span style="color:var(--a2);flex-shrink:0">▸</span><span>$1</span></div>');
+  // ordered list
+  t=t.replace(/^(\d+)\. (.+)$/gm,'<div style="display:flex;gap:7px;margin:2px 0"><b style="color:var(--a2);flex-shrink:0">$1.</b><span>$2</span></div>');
+  // hr
+  t=t.replace(/^---$/gm,'<hr>');
+  // newlines
+  t=t.replace(/\n/g,'<br>');
+  return t;
+}
+
+// ══════════════════════════════════════════════
+// ACTIONS
+// ══════════════════════════════════════════════
+function doCopy(i){
+  const m=G.msgs[i];if(!m)return;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(m.content).then(()=>alert('Copied!')).catch(()=>fallbackCopy(m.content));
+  }else{fallbackCopy(m.content);}
+}
+function fallbackCopy(t){
+  const ta=document.createElement('textarea');ta.value=t;
+  document.body.appendChild(ta);ta.select();document.execCommand('copy');
+  document.body.removeChild(ta);alert('Copied!');
+}
+function doRetry(i){
+  if(i<1)return;
+  const prev=G.msgs[i-1];
+  G.msgs.splice(i,1);
+  const chat=document.getElementById('chat');
+  const bots=chat.querySelectorAll('.msg.bot');
+  if(bots.length) bots[bots.length-1].remove();
+  doSend(prev.content);
+}
+function doSpeak(i){const m=G.msgs[i];if(m)speak(m.content);}
+function speak(t){
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(t.replace(/<[^>]+>/g,'').substring(0,800));
+  window.speechSynthesis.speak(u);
+}
+function doSave(i){
+  const m=G.msgs[i];if(!m)return;
+  const v=prompt('Save as memory:',m.content.substring(0,90));
+  if(v&&v.trim())memPush(v.trim());
+}
+function memAdd(){
+  const v=prompt('What should Radhe AI remember about you?');
+  if(v&&v.trim())memPush(v.trim());
+}
+function memPush(v){
+  G.mem.push(v);
+  renderMem();
+}
+function renderMem(){
+  const el=document.getElementById('mlist');
+  if(!G.mem.length){el.innerHTML='<div style="color:var(--muted);font-size:.71rem;padding:3px">No memories yet.</div>';return;}
+  el.innerHTML=G.mem.map((m,i)=>`<div class="mitem"><span>${m}</span><button onclick="delMem(${i})">✕</button></div>`).join('');
+}
+function delMem(i){G.mem.splice(i,1);renderMem();}
+
+// ══════════════════════════════════════════════
+// EXPORT / CLEAR
+// ══════════════════════════════════════════════
+function doExport(){
+  if(!G.msgs.length){alert('No messages to export yet.');return;}
+  const txt=G.msgs.map(m=>`[${m.role==='user'?'YOU':'RADHE AI'}]\n${m.content}`).join('\n\n'+'─'.repeat(48)+'\n\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['RADHE AI — Chat Export\n'+'═'.repeat(48)+'\n\n'+txt],{type:'text/plain'}));
+  a.download='radhe-ai-chat.txt';a.click();
+}
+function chatClear(){
+  if(!confirm('Clear all chat history?'))return;
+  G.msgs=[];
+  showWelcome();
+  sbClose();
+}
+
+// ══════════════════════════════════════════════
+// SIDEBAR
+// ══════════════════════════════════════════════
+function sbOpen(){document.getElementById('sb').classList.add('on');document.getElementById('sbo').classList.add('on');}
+function sbClose(){document.getElementById('sb').classList.remove('on');document.getElementById('sbo').classList.remove('on');}
+
+// ══════════════════════════════════════════════
+// SETTINGS
+// ══════════════════════════════════════════════
+function openCfg(){
+  document.getElementById('cName').value=G.cfg.name;
+  document.getElementById('cSys').value=G.cfg.sys;
+  document.getElementById('cLang').value=G.cfg.lang;
+  document.getElementById('cMax').value=G.cfg.max;
+  document.getElementById('maxL').textContent=G.cfg.max;
+  document.getElementById('cTmp').value=G.cfg.tmp;
+  document.getElementById('tmpL').textContent=G.cfg.tmp;
+  document.getElementById('cEmoji').value=G.cfg.emoji;
+  document.getElementById('cSpeak').value=G.cfg.speak;
+  document.getElementById('cfg').classList.add('on');
+}
+function saveCfg(){
+  G.cfg.name  =document.getElementById('cName').value.trim()||'Radhe AI';
+  G.cfg.sys   =document.getElementById('cSys').value.trim();
+  G.cfg.lang  =document.getElementById('cLang').value;
+  G.cfg.max   =parseInt(document.getElementById('cMax').value);
+  G.cfg.tmp   =parseFloat(document.getElementById('cTmp').value);
+  G.cfg.emoji =document.getElementById('cEmoji').value;
+  G.cfg.speak =document.getElementById('cSpeak').value;
+  closeCfg();
+}
+function closeCfg(){document.getElementById('cfg').classList.remove('on');}
+
+// ══════════════════════════════════════════════
+// THEME / UTILS
+// ══════════════════════════════════════════════
+function toggleTheme(){
+  document.body.classList.toggle('light');
+  document.getElementById('themebtn').textContent=document.body.classList.contains('light')?'🌙':'☀️';
+}
+function setStatus(t,err){
+  document.getElementById('stxt').textContent=t;
+  document.getElementById('sdot').style.background=err?'#f87171':'#4ade80';
+}
+function resize(){
+  const el=document.getElementById('inp');
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight,130)+'px';
+}
+
+// ══════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
